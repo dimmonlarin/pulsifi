@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace PulsifiApp.Models
@@ -23,7 +24,6 @@ namespace PulsifiApp.Models
        
         [Column(TypeName = "integer")]
         public JobStatus Status { get; set; }
-
     }
 
     public enum JobStatus

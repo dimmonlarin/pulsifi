@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using PulsifiApp.Models;
 
 namespace PulsifiApp.Controllers
 {
+    [Authorize]
     public class JobsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +24,7 @@ namespace PulsifiApp.Controllers
         // GET: Jobs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Jobs.ToListAsync());
+            return View(await _context.Jobs.Include(job => job.Location).ToListAsync());
         }
 
         // GET: Jobs/Details/5
@@ -33,7 +35,7 @@ namespace PulsifiApp.Controllers
                 return NotFound();
             }
 
-            var job = await _context.Jobs
+            var job = await _context.Jobs.Include(job => job.Location)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (job == null)
             {
@@ -43,6 +45,7 @@ namespace PulsifiApp.Controllers
             return View(job);
         }
 
+        [Authorize(Roles = "Administrator, Recruiter")]
         // GET: Jobs/Create
         public IActionResult Create()
         {
@@ -55,6 +58,7 @@ namespace PulsifiApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator, Recruiter")]
         public async Task<IActionResult> Create([Bind("ID,LocationID,Description,Title,Date,Status")] Job job)
         {
             if (ModelState.IsValid)
@@ -67,6 +71,7 @@ namespace PulsifiApp.Controllers
         }
 
         // GET: Jobs/Edit/5
+        [Authorize(Roles = "Administrator, Recruiter")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -74,11 +79,12 @@ namespace PulsifiApp.Controllers
                 return NotFound();
             }
 
-            var job = await _context.Jobs.FindAsync(id);
+            var job = await _context.Jobs.Include(job => job.Location).FirstOrDefaultAsync(job => job.ID == id);
             if (job == null)
             {
                 return NotFound();
             }
+            ViewBag.Locations = _context.Locations.ToList();
             return View(job);
         }
 
@@ -87,6 +93,7 @@ namespace PulsifiApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator, Recruiter")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,LocationID,Description,Title,Date,Status")] Job job)
         {
             if (id != job.ID)
@@ -118,6 +125,7 @@ namespace PulsifiApp.Controllers
         }
 
         // GET: Jobs/Delete/5
+        [Authorize(Roles = "Administrator, Recruiter")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -138,6 +146,7 @@ namespace PulsifiApp.Controllers
         // POST: Jobs/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrator, Recruiter")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var job = await _context.Jobs.FindAsync(id);
