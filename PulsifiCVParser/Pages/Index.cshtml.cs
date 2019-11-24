@@ -85,7 +85,7 @@ namespace PulsifiCVParser.Pages
                     }
                     break;
                 case ".pdf":
-
+                    documentText.Append("PDF support is coming :)");
                     break;
             }
             var result = await Helpers.RecognizeEntities.RunAsync("https://pulsifitextanalytics.cognitiveservices.azure.com",
